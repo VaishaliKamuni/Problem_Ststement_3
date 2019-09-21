@@ -1,0 +1,40 @@
+# Problem_Ststement_3
+
+import pandas as pd
+import numpy as np
+df = pd.read_excel(r'C:\Users\hp\Documents\Untitled Folder\Solution_data_1.xlsx')
+df_month = df
+
+#add month
+df_month['Month'] = df['Date'].map(lambda x: x.month)
+df_tim_idx = df_month.set_index('Time')
+print(df_tim_idx)
+
+#min of each month
+month_min= df_tim_idx.groupby(['Month'], axis=0, as_index=True, sort=False).min().drop(['Date'], axis=1)
+print(month_min)
+
+#max of each month
+month_max = df_tim_idx.groupby(['Month'], axis=0, as_index=True, sort=False).max().drop(['Date'], axis=1)
+print(month_max)
+
+#sort and group
+df_s = df_tim_idx.sort_values(['Value'], axis=0, ascending=True, inplace=False)
+sg_df = df_s.groupby(['Month'], axis=0, as_index=False, sort=True)
+
+#data matrix
+month_min = pd.concat([month_min, month_max], axis=1)
+print(month_min)
+writer = pd.ExcelWriter(r'C:\Users\hp\Documents\Untitled Folder\Solution_data_3a.xlsx')
+month_min.to_excel(writer,'Sheet1',index=False)
+writer.save()
+
+#extracting top and bottom four values
+top_bottom_four = pd.DataFrame()
+for month, month_df in sg_df:
+    top_bottom_four = pd.concat([top_bottom_four, month_df.head(4), month_df.tail(4)], ignore_index=False)
+
+print(top_bottom_four)
+writer = pd.ExcelWriter(r'C:\Users\hp\Documents\Untitled Folder\Solution_data_3a.xlsx')
+top_bottom_four.to_excel(writer,'Sheet2',index=False)
+writer.save()
